@@ -5,8 +5,7 @@
 #include "Util.h"
 #include "WebPageStore.h"
 
-#include <FS.h>
-#include <SPI.h>
+#include <LittleFS.h>
 #include <ESP8266WebServer.h>
 #include <DNSServer.h>
 
@@ -20,9 +19,6 @@ static os_timer_t channelHop_timer;
 #define ENABLE 1
 
 long rebootmillis = 0;
-
-const byte DNS_PORT = 53;
-DNSServer dnsServer;
 
 ESP8266WebServer server(80);
 
@@ -54,32 +50,32 @@ ArrayList<String> devices;
 
 
 
-void initSpiffs()
+void initLittleFS()
 {
   bool initok = false;
-  initok = SPIFFS.begin();
+  initok = LittleFS.begin();
   if (!(initok))
   {
-    Serial.println("Format SPIFFS");
-    SPIFFS.format();
-    initok = SPIFFS.begin();
+    Serial.println("Format LittleFS");
+    LittleFS.format();
+    initok = LittleFS.begin();
   }
   if (!(initok))
   {
-    SPIFFS.format();
-    initok = SPIFFS.begin();
+    LittleFS.format();
+    initok = LittleFS.begin();
   }
   if (!initok) {
-    Serial.println("Error while reading SPIFFS! Halting System...");
+    Serial.println("Error while reading LittleFS! Halting System...");
     while (true) {
       delay(10000);
     }
   } else {
-    if (!(SPIFFS.exists ("/devid"))) {
+    if (!(LittleFS.exists ("/devid"))) {
       Serial.print("Setting new DevID...  ");
-      File devidfile = SPIFFS.open("/devid", "w");
+      File devidfile = LittleFS.open("/devid", "w");
       if (!devidfile) {
-        Serial.println("Error while reading SPIFFS! Halting System...");
+        Serial.println("Error while reading LittleFS! Halting System...");
         while (true) {
           delay(10000);
         }
@@ -94,9 +90,11 @@ void initSpiffs()
     } else {
       Serial.print("Loading DevID...  ");
 
-      File devidfile = SPIFFS.open("/devid", "r");
+      File devidfile = LittleFS.open("/devid", "r");
 
       String devid = devidfile.readStringUntil('\n');
+
+      devid.trim();
 
       devidfile.close();
 
@@ -182,11 +180,11 @@ void channelHop()
 }
 
 void enableLED() {
-  digitalWrite(LED_PIN, ENABLE);
+  digitalWrite(LED_PIN, 1);
 }
 
 void disableLED() {
-  digitalWrite(LED_PIN, DISABLE);
+  digitalWrite(LED_PIN, 0);
 }
 
 void setup() {
@@ -199,7 +197,7 @@ void setup() {
 
   disableLED();
 
-  initSpiffs();
+  initLittleFS();
 
   if (checkFirstStart()) {
     setupMode = true;
@@ -207,6 +205,7 @@ void setup() {
   }
 
   WiFi.mode(WIFI_STA);
+
 
 
   delay(10);
@@ -234,7 +233,6 @@ void loop() {
     }
   }
   if (setupMode) {
-    dnsServer.processNextRequest();
     server.handleClient();
     return;
   }
@@ -256,8 +254,6 @@ void loop() {
 
     delay(100);
 
-    WiFi.setPhyMode(WIFI_PHY_MODE_11N);
-    WiFi.setPhyMode(WIFI_PHY_MODE_11G);
     WiFi.disconnect();
 
     delay(100);
@@ -283,21 +279,12 @@ void loop() {
       Serial.print(".");
       yield();
 
-      /*WiFi.mode(WIFI_STA);
-        delay(100);
-        WiFi.disconnect();
-        delay(100);
-        WiFi.begin(wifiname, wifipass);
-        delay(5000);
-      */
-
-
       i++;
 
       if (i > 500) {
         Serial.println();
         Serial.println("Connection lost.");
-        WiFi.printDiag(Serial);
+        //     WiFi.printDiag(Serial);
         Serial.println(WiFi.status());
         Serial.println("0 WiFi is in process of changing between statuses");
         Serial.println("1 SSID cannot be reached");
@@ -321,7 +308,7 @@ void loop() {
 
     client.println("WiFiProbe V0.1");
     client.println(room);
-    client.println(devs + ((String) ""));
+    client.println(String(devs));
 
     client.stop();
 
@@ -352,12 +339,12 @@ void loop() {
 
     Serial.println("Resetting... ");
 
-    SPIFFS.format();
+    LittleFS.format();
     ESP.eraseConfig();
 
-    File devidfile = SPIFFS.open("/devid", "w");
+    File devidfile = LittleFS.open("/devid", "w");
     if (!devidfile) {
-      Serial.println("Error while reading SPIFFS! Halting System...");
+      Serial.println("Error while reading LittleFS! Halting System...");
       while (true) {
         delay(10000);
       }
@@ -375,19 +362,36 @@ void loop() {
 
 
 boolean checkFirstStart() {
-  if ((SPIFFS.exists ("/wifidata"))) {
-    File wififile = SPIFFS.open("/wifidata", "r");
+  if ((LittleFS.exists ("/wifidata"))) {
+    File wififile = LittleFS.open("/wifidata", "r");
 
-    wifiname = wififile.readStringUntil('\n');
-    wifipass = wififile.readStringUntil('\n');
-    ip.fromString(wififile.readStringUntil('\n'));
-    port = wififile.readStringUntil('\n').toInt();
-    room = wififile.readStringUntil('\n');
-    checktime = wififile.readStringUntil('\n').toInt();
-    minrssi = wififile.readStringUntil('\n').toInt();
 
-    Serial.println(wifiname);
-    Serial.println(wifipass);
+    String wifinamer = wififile.readStringUntil('\n');
+    String wifipassr = wififile.readStringUntil('\n');
+    String ipr = wififile.readStringUntil('\n');
+    String portr = wififile.readStringUntil('\n');
+    String roomr = wififile.readStringUntil('\n');
+    String checktimer = wififile.readStringUntil('\n');
+    String minrssir = wififile.readStringUntil('\n');
+
+    wifinamer.trim();
+    wifipassr.trim();
+    ipr.trim();
+    portr.trim();
+    roomr.trim();
+    checktimer.trim();
+    minrssir.trim();
+
+
+    wifiname = wifinamer;
+    wifipass = wifipassr;
+    ip.fromString(ipr);
+
+    port = portr.toInt();
+    room = roomr;
+    checktime = checktimer.toInt();
+    minrssi = minrssir.toInt();
+
 
     wififile.close();
     return false;
@@ -402,8 +406,6 @@ boolean checkFirstStart() {
 
 
   delay(500);
-
-  dnsServer.start(DNS_PORT, "*", WiFi.localIP());
 
   server.on("/", []() {
     server.send(200, "text/html", setuppage);
@@ -422,7 +424,7 @@ boolean checkFirstStart() {
     String port = server.arg("port");
     String rssi = server.arg("rssi");
 
-    File wififile = SPIFFS.open("/wifidata", "w");
+    File wififile = LittleFS.open("/wifidata", "w");
 
     wififile.println(ssid);
     wififile.println(password);
