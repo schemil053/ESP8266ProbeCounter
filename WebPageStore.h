@@ -48,13 +48,13 @@ const char setuppage[] PROGMEM =  R"(<!DOCTYPE HTML>
         </label>
       </p>
       <p>
-        <label>Min RSSI (Ohne Minus):<br>
+        <label>Max RSSI (Ohne Minus):<br>
           <input name="rssi" placeholder="80" pattern="^\d+$" required>
         </label>
       </p>
     </form>
     <button>
-      Absenden
+      Anwenden und Neustarten
     </button>
     <script>
       document.querySelector('button').addEventListener('click', async () =>{

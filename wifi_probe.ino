@@ -147,7 +147,7 @@ static void showMetadata(SnifferPacket *snifferPacket) {
     rssi = -rssi;
   }
 
-  if (rssi >= minrssi) {
+  if (rssi <= minrssi) {
     if (!devices.contains((String) addr)) {
       devices.add((String) addr);
     }
