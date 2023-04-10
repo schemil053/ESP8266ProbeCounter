@@ -12,7 +12,7 @@ Board auswählen
 Code kompilieren und hochladen
 
 **4. Schritt:**
-Seriellen Monitor öffnen (auf 115200 Baud) und das Board resetten. Dort steht die DeviceID.
+Seriellen Monitor öffnen (auf 115200 Baud) und das Board resetten (Neustarten). Dort steht die DeviceID.
 
 **5. Schritt:**
 Nach einem Netzwerk mit dem Namen WifiProberSetup-XXXXXX suchen, wobei XXXXXX für die GeräteID steht.
