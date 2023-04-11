@@ -24,8 +24,8 @@ Mit dem Netzwerk verbinden und die Webseite [http://192.168.4.1](http://192.168.
 Die Einstellungen Konfigurieren:  
 SSID - Der Name von dem Steuernetzwerk. Hierbei muss bedacht werden, dass das Gerät nur 2,4 GHZ unterstützt.  
 Passwort - Das Passwort für das Steuernetzwerk.  
-IP - Die IP von dem Steuerserver. (Serversoftware kommt demnächst) Diese muss vom Steuernetzwerk erreichbar sein.  
-Port - Der Port vom Steuerserver.  
+IP - Die IP von dem Steuerserver. Diese IP muss vom Steuernetzwerk erreichbar sein.  
+Port - Der Port vom Steuerserver. Dieser muss vom Steuernetzwerk erreichbar sein.  
 Raum - Der Raumname, in dem der ESP8266 steht.  
 Checkzeit - Die Zeit, in die der ESP8266 die Daten zum Server schickt in Minuten. Standard: 10  
 Max RSSI - Der Maximale RSSID-Wert (Ohne Minus). Dieser muss bestimmt werden, in dem Man einen hohen Wert einträgt und in den Seriellen Monitor schaut.  
@@ -36,3 +36,6 @@ Auf `Anwenden und Neustarten` klicken, um die Änderungen anzuwenden.
 ## Zurücksetzen / Einstellungen ändern
 
 Um das Gerät zurückzusetzen und das Web-Panel zu starten reicht es, den FLASH-Button an D0 zu betätigen und für 10 Sekunden zu halten.
+
+## Server  
+[ESP8266ProbeCounterServer](https://github.com/schemil053/ESP8266ProbeCounterServer)
