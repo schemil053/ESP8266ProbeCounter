@@ -1,6 +1,7 @@
 #include "ESP8266WiFi.h"
 
 #include "ArrayList.h"
+#include "Mappings.h"
 #include "RXSniffer.h"
 #include "Util.h"
 #include "WebPageStore.h"
@@ -45,7 +46,7 @@ int checktime = 10;
 long lastdata = 0;
 
 ArrayList<String> devices;
-
+HashMap<String, int> rssimap;
 
 
 
@@ -151,6 +152,7 @@ static void showMetadata(SnifferPacket *snifferPacket) {
     if (!devices.contains((String) addr)) {
       devices.add((String) addr);
     }
+    rssimap.put((String) addr, rssi);
   }
 }
 
@@ -242,10 +244,10 @@ void loop() {
   if (WiFi.status() != WL_CONNECTED) {
     WiFi.begin(wifiname, wifipass);
   }
-  if ((lastdata + (checktime * 60000)) < millis()) {
+  if ((lastdata + (20000)) < millis()) {
+//  if ((lastdata + (checktime * 60000)) < millis()) {
     lastdata = millis();
     int devs = devices.size();
-    devices.clear();
     WiFi.persistent(false);
     delay(20);
     // WiFi.setAutoReconnect(false);
@@ -306,9 +308,16 @@ void loop() {
     WiFiClient client;
     client.connect(ip, port);
 
-    client.println("WiFiProbe V0.1");
+    client.println("WiFiProbe V0.1.1");
     client.println(room);
     client.println(String(devs));
+    String currentdev;
+    for (int i = 0; i < devices.size(); i++) {
+      currentdev = devices[i];
+      client.println(currentdev);
+      client.println(String(rssimap.get(currentdev)));
+    }
+    
 
     client.stop();
 
@@ -461,4 +470,7 @@ void recheckWiFi() {
   os_timer_disarm(&channelHop_timer);
   os_timer_setfn(&channelHop_timer, (os_timer_func_t *) channelHop, NULL);
   os_timer_arm(&channelHop_timer, CHANNEL_HOP_INTERVAL_MS, 1);
+
+  devices.clear();
+  rssimap.clear();
 }
