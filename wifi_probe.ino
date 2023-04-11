@@ -244,8 +244,8 @@ void loop() {
   if (WiFi.status() != WL_CONNECTED) {
     WiFi.begin(wifiname, wifipass);
   }
-  if ((lastdata + (20000)) < millis()) {
-//  if ((lastdata + (checktime * 60000)) < millis()) {
+//  if ((lastdata + (20000)) < millis()) {
+  if ((lastdata + (checktime * 60000)) < millis()) {
     lastdata = millis();
     int devs = devices.size();
     WiFi.persistent(false);
