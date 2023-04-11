@@ -39,3 +39,7 @@ Um das Gerät zurückzusetzen und das Web-Panel zu starten reicht es, den FLASH-
 
 ## Server  
 [ESP8266ProbeCounterServer](https://github.com/schemil053/ESP8266ProbeCounterServer)
+
+## TODO:
+
+Multi-ESP-Rooming. Dafür werden 3-8 ESP8266-Chips in einem Raum verteilt. Jeder ESP8266 sendet MAC und RSSI an den Server, dieser kann errechnen, wo genau sich die Geräte aufhalten.  
