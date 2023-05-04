@@ -6,15 +6,12 @@ template<typename hash, typename map>
 class HashType {
   public:
     HashType() {
-      reset();
+      
     }
 
     HashType(hash code, map value): hashCode(code), mappedValue(value) {}
 
-    void reset() {
-      hashCode = 0;
-      mappedValue = 0;
-    }
+
     hash getKey() {
       return hashCode;
     }
